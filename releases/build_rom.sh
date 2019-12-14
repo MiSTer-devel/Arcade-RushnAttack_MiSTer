@@ -24,34 +24,31 @@ check_permissions () {
 }
 
 read_ini () {
-  if [ ! -f ${BASEDIR}/build_rom_RushAtck.ini ]; then
-    exit_with_error "Missing build_rom_RushAtck.ini"
+  if [ ! -f ${BASEDIR}/build_rom.ini ]; then
+    exit_with_error "Missing build_rom.ini"
   else
-    source ${BASEDIR}/build_rom_RushAtck.ini
+    source ${BASEDIR}/build_rom.ini
   fi
 }
 
-uncompress_zip() {
+uncompress_zips() {
   tmpdir=tmp.`date +%Y%m%d%H%M%S%s`
-  if [ -f ${BASEDIR}/${zip0} ]; then
-    unzip -qq -d ${BASEDIR}/${tmpdir}/ ${BASEDIR}/${zip0}
-    if [ $? != 0 ] ; then
-      rm -rf ${BASEDIR}/$tmpdir
-      exit_with_error "Something went wrong\nwhen extracting\n${zip0}"
-    fi
-  else
-    exit_with_error "Cannot find ${zip0}"
-  fi
-  if [ -f ${BASEDIR}/${zip1} ]; then
-    unzip -qq -d ${BASEDIR}/${tmpdir}/ ${BASEDIR}/${zip1}
-    if [ $? != 0 ] ; then
-      rm -rf ${BASEDIR}/$tmpdir
-      exit_with_error "Something went wrong\nwhen extracting\n${zip1}"
-    fi
-  else
-    rm -rf ${BASEDIR}/$tmpdir
-    exit_with_error "Cannot find ${zip1}"
-  fi
+  local z=''
+
+  for z in "${zips[@]}"; do
+      if [[ ! -f ${BASEDIR}/${z} ]]; then
+        exit_with_error "Cannot find ${z}"
+      fi
+  done
+
+  for z in "${zips[@]}"; do
+      echo "Unzipping $z"
+      unzip -qq -o -d ${BASEDIR}/${tmpdir}/ ${BASEDIR}/${z}
+      if [ $? != 0 ] ; then
+        rm -rf ${BASEDIR}/$tmpdir
+        exit_with_error "Something went wrong\nwhen extracting\n${z}"
+      fi
+  done
 }
 
 generate_rom() {
@@ -101,7 +98,7 @@ check_permissions
 read_ini
 
 ## extract package
-uncompress_zip
+uncompress_zips
 
 ## build rom
 generate_rom

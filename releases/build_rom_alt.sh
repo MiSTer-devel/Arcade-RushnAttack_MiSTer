@@ -24,10 +24,10 @@ check_permissions () {
 }
 
 read_ini () {
-  if [ ! -f ${BASEDIR}/build_rom.ini ]; then
-    exit_with_error "Missing build_rom.ini"
+  if [ ! -f ${BASEDIR}/build_rom_alt.ini ]; then
+    exit_with_error "Missing build_rom_alt.ini"
   else
-    source ${BASEDIR}/build_rom.ini
+    source ${BASEDIR}/build_rom_alt.ini
   fi
 }
 
