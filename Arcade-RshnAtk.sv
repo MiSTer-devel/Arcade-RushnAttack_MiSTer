@@ -76,16 +76,26 @@ localparam CONF_STR = {
    "-;",
 	"O1,Aspect Ratio,Original,Wide;",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
-	//"-;",
-	//"OAB,Life,3,2,1,5;",
-	//"OI,Cabinet,Upright,Cocktail;",
-	//"-;",
-	//"OH,Service Mode,Off,On;",
+	"-;",
+	"O89,Lives,2,3,5,7;",
+	"OAB,Extend,20k/ev.60k,30k/ev.70k,40k/ev.80k,50k/ev.90k;",
+	"OCD,Difficulty,Easy,Medium,Hard,Hardest;",
+	"OE,Demo Sound,Off,On;",
 	"-;",
 	"R0,Reset;",
 	"J1,Trig1,Trig2,Start 1P,Start 2P,Coin;",
 	"V,v",`BUILD_DATE
 };
+
+wire	[1:0] dsLives   = ~status[9:8];
+wire	[1:0] dsExtend  = ~status[11:10];
+wire	[1:0] dsDiff    = ~status[13:12];
+wire			dsDemoSnd = ~status[14];
+
+
+wire	[7:0]	DSW0 = {dsDemoSnd,dsDiff,dsExtend,1'b0,dsLives};
+wire	[7:0]	DSW1 = 8'hFF;
+wire	[7:0]	DSW2 = 8'hFF;
 
 
 ////////////////////   CLOCKS   ///////////////////
@@ -190,8 +200,7 @@ reg btn_trig1_2  = 0;
 reg btn_trig2_2  = 0;
 
 
-//wire bCabinet  = status[18];
-wire bCabinet  = 1'b0;	// (upright only)
+wire bCabinet  = 1'b0;
 
 wire m_up2     = btn_up_2    | joystk2[3];
 wire m_down2   = btn_down_2  | joystk2[2];
@@ -265,12 +274,8 @@ assign AUDIO_S = 0; // unsigned PCM
 wire	iRST = RESET | status[0] | buttons[1] | ioctl_download;
 
 wire  [5:0]	INP0 = { m_trig12, m_trig11, {m_left1, m_down1, m_right1, m_up1} };
-wire  [5:0]	INP1 = { m_trig22, m_trig22, {m_left2, m_down2, m_right2, m_up2} };
+wire  [5:0]	INP1 = { m_trig22, m_trig21, {m_left2, m_down2, m_right2, m_up2} };
 wire  [2:0]	INP2 = { (m_coin1|m_coin2), m_start2, m_start1 };
-
-wire	[7:0]	DSW0 = 8'h4A;
-wire	[7:0]	DSW1 = 8'h0F;
-wire	[7:0]	DSW2 = 8'hFF;
 
 FPGA_GreenBeret GameCore ( 
 	.reset(iRST),.clk48M(clk_48M),

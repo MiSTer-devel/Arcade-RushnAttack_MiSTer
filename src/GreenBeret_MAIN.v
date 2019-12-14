@@ -86,15 +86,17 @@ wire [7:0]	IP02 = ~{`none,`none,`P2TB,`P2TA,`P2DW,`P2UP,`P2RG,`P2LF};
 //
 // CPU Input Data Selector
 //
-assign CPUID =	VIDDV   ? VIDRD :
-					ROMDV   ? ROMDT :
-					CS_ISYS ? ISYS  : 
-					CS_IP01 ? IP01  :
-					CS_IP02 ? IP02  :
-					CS_DSW0 ? DSW0  :
-					CS_DSW1 ? DSW1  :
-					CS_DSW2 ? DSW2  :
-					8'h00;
+DSEL9 dsel(
+	CPUID,
+	VIDDV,VIDRD,
+	ROMDV,ROMDT,
+	CS_ISYS,ISYS, 
+	CS_IP01,IP01,
+	CS_IP02,IP02,
+	CS_DSW0,DSW0,
+	CS_DSW1,DSW1,
+	CS_DSW2,DSW2
+);
 
 
 //
@@ -167,6 +169,34 @@ always @( negedge CPUCL ) begin
 		end
 	end
 end
+
+endmodule
+
+
+module DSEL9
+(
+	output [7:0] out,
+	input en0, input [7:0] in0,
+	input en1, input [7:0] in1,
+	input en2, input [7:0] in2,
+	input en3, input [7:0] in3,
+	input en4, input [7:0] in4,
+	input en5, input [7:0] in5,
+	input en6, input [7:0] in6,
+	input en7, input [7:0] in7,
+	input en8, input [7:0] in8
+);
+
+assign out = en0 ? in0 :
+				 en1 ? in1 :
+				 en2 ? in2 :
+				 en3 ? in3 :
+				 en4 ? in4 :
+				 en5 ? in5 :
+				 en6 ? in6 :
+				 en7 ? in7 :
+				 en8 ? in8 :
+				 8'h00;
 
 endmodule
 
