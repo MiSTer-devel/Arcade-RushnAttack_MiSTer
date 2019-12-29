@@ -93,8 +93,12 @@ localparam CONF_STR = {
 	"OCD,Difficulty,Easy,Medium,Hard,Hardest;",
 	"OE,Demo Sound,Off,On;",
 	"-;",
+	"OGK,Analog Video H-Pos,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31;",
+	"OLN,Analog Video V-Pos,0,1,2,3,4,5,6,7;",
+	"-;",
 	"R0,Reset;",
 	"J1,Trig1,Trig2,Start 1P,Start 2P,Coin;",
+	"jn,A,B,Start,Select,R;",
 	"V,v",`BUILD_DATE
 };
 
@@ -103,6 +107,8 @@ wire	[1:0] dsExtend  = ~status[11:10];
 wire	[1:0] dsDiff    = ~status[13:12];
 wire			dsDemoSnd = ~status[14];
 
+wire  [4:0] HOFFS = status[20:16];
+wire  [2:0] VOFFS = status[23:21];
 
 wire	[7:0]	DSW0 = {dsDemoSnd,dsDiff,dsExtend,1'b0,dsLives};
 wire	[7:0]	DSW1 = 8'hFF;
@@ -276,7 +282,8 @@ wire [11:0] POUT;
 HVGEN hvgen
 (
 	.HPOS(HPOS),.VPOS(VPOS),.PCLK(PCLK),.iRGB(POUT),
-	.oRGB({b,g,r}),.HBLK(hblank),.VBLK(vblank),.HSYN(hs),.VSYN(vs)
+	.oRGB({b,g,r}),.HBLK(hblank),.VBLK(vblank),.HSYN(hs),.VSYN(vs),
+	.HOFFS(HOFFS),.VOFFS(VOFFS)
 );
 assign ce_vid = PCLK;
 
@@ -320,8 +327,12 @@ module HVGEN
 	output reg			HBLK = 1,
 	output reg			VBLK = 1,
 	output reg			HSYN = 1,
-	output reg			VSYN = 1
+	output reg			VSYN = 1,
+
+	input   [8:0]		HOFFS,
+	input	  [8:0]		VOFFS
 );
+// 384x263 @ 60.6  PCLK: 6.144MHz
 
 reg [8:0] hcnt = 0;
 reg [8:0] vcnt = 0;
@@ -329,23 +340,34 @@ reg [8:0] vcnt = 0;
 assign HPOS = hcnt-9'd24;
 assign VPOS = vcnt;
 
+wire [8:0] HS_B = 288+(HOFFS*2);
+wire [8:0] HS_E =  32+(HS_B);
+wire [8:0] HS_N = 447+(HS_E-320);
+
+wire [8:0] VS_B = 226+(VOFFS*4);
+wire [8:0] VS_E =   6+(VS_B);
+wire [8:0] VS_N = 481+(VS_E-232);
+
 always @(posedge PCLK) begin
 	case (hcnt)
 	    24: begin HBLK <= 0; hcnt <= hcnt+9'd1; end
 		265: begin HBLK <= 1; hcnt <= hcnt+9'd1; end
-		311: begin HSYN <= 0; hcnt <= hcnt+9'd1; end
-		342: begin HSYN <= 1; hcnt <= 9'd471;    end
 		511: begin hcnt <= 0;
 			case (vcnt)
 				223: begin VBLK <= 1; vcnt <= vcnt+9'd1; end
-				226: begin VSYN <= 0; vcnt <= vcnt+9'd1; end
-				233: begin VSYN <= 1; vcnt <= 9'd483;	  end
 				511: begin VBLK <= 0; vcnt <= 0; end
 				default: vcnt <= vcnt+9'd1;
 			endcase
 		end
 		default: hcnt <= hcnt+9'd1;
 	endcase
+
+	if (hcnt==HS_B) begin HSYN <= 0; end
+	if (hcnt==HS_E) begin HSYN <= 1; hcnt <= HS_N; end
+
+	if (vcnt==VS_B) begin VSYN <= 0; end
+	if (vcnt==VS_E) begin VSYN <= 1; vcnt <= VS_N; end
+	
 	oRGB <= (HBLK|VBLK) ? 12'h0 : iRGB;
 end
 
