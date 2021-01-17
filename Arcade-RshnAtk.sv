@@ -117,7 +117,6 @@ assign VIDEO_ARY =  (!ar) ? ( 8'd3) : 12'd0;
 `include "build_id.v" 
 localparam CONF_STR = {
 	"A.RshnAtk;;",
-	"H0O1,Aspect Ratio,Original,Wide;",
 	"H0O67,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
 	"-;",
