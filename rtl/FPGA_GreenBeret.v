@@ -28,12 +28,20 @@ module FPGA_GreenBeret
 	input				ROMCL,		// Downloaded ROM image
 	input  [17:0]  ROMAD,
 	input   [7:0]	ROMDT,
-	input				ROMEN
+	input				ROMEN,
+
+	input				pause,
+
+	input	 [15:0]	hs_address,
+	input	 [7:0]	hs_data_in,
+	output [7:0]	hs_data_out,
+	input				hs_write,
+	input				hs_access
 );
 
 // Clocks
 wire clk24M, clk12M, clk6M, clk3M;
-CLKGEN clks( clk48M, clk24M, clk12M, clk6M, clk3M );
+CLKGEN clks( clk48M, pause, clk24M, clk12M, clk6M, clk3M );
 
 wire   VCLKx8 = clk48M;
 wire   VCLKx4 = clk24M;
@@ -61,7 +69,9 @@ MAIN cpu
 	CPUWR, CPUWD,
 	VIDDV, VIDRD,
 	
-	ROMCL,ROMAD,ROMDT,ROMEN
+	ROMCL,ROMAD,ROMDT,ROMEN,
+
+	pause
 );
 
 
@@ -77,7 +87,9 @@ VIDEO vid
 	CPUWR, CPUWD,
 	VIDDV, VIDRD,
 
-	ROMCL,ROMAD,ROMDT,ROMEN
+	ROMCL,ROMAD,ROMDT,ROMEN,
+
+	hs_address,hs_data_in,hs_data_out,hs_write,hs_access
 );
 
 
@@ -89,7 +101,9 @@ SOUND snd
 
 	CPUCL,
 	CPUMX, CPUAD,
-	CPUWR, CPUWD
+	CPUWR, CPUWD,
+
+	pause
 );
 
 endmodule
@@ -101,6 +115,7 @@ endmodule
 module CLKGEN
 (
 	input		clk48M,
+	input		pause,
 
 	output	clk24M,
 	output	clk12M,
@@ -109,7 +124,10 @@ module CLKGEN
 );
 	
 reg [3:0] clkdiv;
-always @( posedge clk48M ) clkdiv <= clkdiv+4'd1;
+always @( posedge clk48M ) 
+begin
+	if(~pause) clkdiv <= clkdiv+4'd1;
+end
 
 assign clk24M = clkdiv[0];
 assign clk12M = clkdiv[1];

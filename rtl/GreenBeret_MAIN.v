@@ -31,7 +31,9 @@ module MAIN
 	input				DLCL,
 	input  [17:0]  DLAD,
 	input   [7:0]	DLDT,
-	input				DLEN
+	input				DLEN,
+
+	input				pause
 );
 
 //
@@ -52,7 +54,7 @@ T80s z80(
 	.MREQ_n(iCPUMX),
 	.WR_n(iCPUWR),
 	.BUSRQ_n(1'b1),
-	.WAIT_n(1'b1)
+	.WAIT_n(~pause)
 );
 
 assign CPUMX = ~iCPUMX;

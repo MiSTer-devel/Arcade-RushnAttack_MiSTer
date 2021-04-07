@@ -31,7 +31,13 @@ module VIDEO
 	input				DLCL,
 	input  [17:0]  DLAD,
 	input   [7:0]	DLDT,
-	input				DLEN
+	input				DLEN,
+
+	input	 [15:0]	hs_address,
+	input	 [7:0]	hs_data_in,
+	output [7:0]	hs_data_out,
+	input				hs_write,
+	input				hs_access
 );
 
 // Video RAMs
@@ -69,9 +75,19 @@ wire  [4:0] ZRMA;
 wire  [7:0] ZRM0, ZRM1;
 wire [15:0] ZRMD = {ZRM1,ZRM0};
 
+// Hiscore mux
+wire 			mram_clk = hs_access ? DLCL : CPUCL;
+wire [11:0]	mram_addr = hs_access ? hs_address[11:0] : CPUAD[11:0];
+wire 			mram_cs = hs_access ? 1'b1 : CS_MRAM;
+wire 			mram_we = hs_access ? hs_write : CPUWR;
+wire [7:0]	mram_di = hs_access ? hs_data_in : CPUWD;
+wire [7:0]	mram_do;
+assign		OD_MRAM = hs_access ? 8'b0 : mram_do;
+assign		hs_data_out = hs_access ? mram_do : 8'b0;
+
 VRAM2048 cram( CPUCL, CPUAD[10:0], CS_CRAM, CPUWR, CPUWD, OD_CRAM, VCLKx4, BGVA, BGCR ); 
 VRAM2048 vram( CPUCL, CPUAD[10:0], CS_VRAM, CPUWR, CPUWD, OD_VRAM, VCLKx4, BGVA, BGVR ); 
-VRAM4096 mram( CPUCL, CPUAD[11:0], CS_MRAM, CPUWR, CPUWD, OD_MRAM,~VCLKx8, SAAD, SATD );
+VRAM4096 mram( mram_clk, mram_addr, mram_cs, mram_we, mram_di, mram_do,~VCLKx8, SAAD, SATD );
 VRAM32   zrm0( CPUCL, CPUAD[ 4:0], CS_ZRM0, CPUWR, CPUWD, OD_ZRM0, VCLKx4, ZRMA, ZRM0 ); 
 VRAM32   zrm1( CPUCL, CPUAD[ 4:0], CS_ZRM1, CPUWR, CPUWD, OD_ZRM1, VCLKx4, ZRMA, ZRM1 ); 
 
