@@ -14,7 +14,9 @@ module SOUND
 	input				CPUMX,
 	input	 [15:0]	CPUAD,
 	input				CPUWR,
-	input	  [7:0]	CPUWD
+	input	  [7:0]	CPUWD,
+
+	input				pause
 );
 
 wire CS_SNDLC = ( CPUAD[15:8] == 8'hF2 ) & CPUMX & CPUWR;
@@ -31,7 +33,9 @@ end
 wire sndclk;
 sndclkgen scgen( dacclk, sndclk );
 
-SN76496 sgn( sndclk, CPUCL, reset, CS_SNDWR, CPUWR, SNDLATCH, 4'b1111, SNDOUT );
+
+wire [3:0] sndmask = pause ? 4'b0000 : 4'b1111;
+SN76496 sgn( sndclk, CPUCL, reset, CS_SNDWR, CPUWR, SNDLATCH, sndmask, SNDOUT );
 
 endmodule
 
