@@ -41,6 +41,7 @@ module emu
 
 	input  [11:0] HDMI_WIDTH,
 	input  [11:0] HDMI_HEIGHT,
+	output        HDMI_FREEZE,
 
 `ifdef MISTER_FB
 	// Use framebuffer in DDRAM (USE_FB=1 in qsf)
@@ -177,8 +178,8 @@ assign BUTTONS = 0;
 
 wire [1:0] ar = status[7:6];
 
-assign VIDEO_ARX =  (!ar) ? ( 8'd4) : (ar - 1'd1);
-assign VIDEO_ARY =  (!ar) ? ( 8'd3) : 12'd0;
+assign VIDEO_ARX =  (!ar) ? ( 12'd4) : (ar - 1'd1);
+assign VIDEO_ARY =  (!ar) ? ( 12'd3) : 12'd0;
 
 
 `include "build_id.v" 
@@ -245,14 +246,14 @@ wire  [7:0] ioctl_din;
 
 wire [15:0] joystk1, joystk2;
 
-wire [21:0]	gamma_bus;
+wire [21:0] gamma_bus;
 
-hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
+hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
 	.clk_sys(clk_sys),
 	.HPS_BUS(HPS_BUS),
-
-	.conf_str(CONF_STR),
+	.EXT_BUS(),
+	.gamma_bus(gamma_bus),
 
 	.buttons(buttons),
 
@@ -260,7 +261,6 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 	.status_menumask({15'h0,direct_video}),
 
 	.forced_scandoubler(forced_scandoubler),
-	.gamma_bus(gamma_bus),
 	.direct_video(direct_video),
 
 	.ioctl_download(ioctl_download),
@@ -296,7 +296,7 @@ wire m_trig12  = joystk1[5] | (bCabinet ? 1'b0 : m_trig22);
 
 wire m_coin1   = joystk1[8];
 wire m_coin2   = joystk2[8];
-wire m_pause   = joystk1[9] | joystk1[9];
+wire m_pause   = joystk1[9] | joystk2[9];
 
 // PAUSE SYSTEM
 reg				pause;									// Pause signal (active-high)
@@ -305,8 +305,8 @@ reg [31:0]		pause_timer;							// Time since pause
 reg [31:0]		pause_timer_dim = 31'h1C9C3800;	// Time until screen dim (10 seconds @ 48Mhz)
 reg 				dim_video;								// Dim video output (active-high)
 
-// Pause when highscore module requires access, user has pressed pause, or OSD is open and option is set
-assign pause = hs_access | pause_toggle  | (OSD_STATUS && ~status[15]);
+// Pause when highcore module requires access, user has pressed pause, or OSD is open and option is set
+assign pause = hs_access | pause_toggle | (OSD_STATUS && ~status[15]);
 assign dim_video = (pause_timer >= pause_timer_dim) ? 1'b1 : 1'b0;
 
 always @(posedge clk_sys) begin
