@@ -185,15 +185,14 @@ assign VIDEO_ARY =  (!ar) ? ( 12'd3) : 12'd0;
 `include "build_id.v"
 localparam CONF_STR = {
 	"A.RshnAtk;;",
+	"OGK,Analog Video H-Pos,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1;",
+	"OLO,Analog Video V-Pos,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
 	"H0O67,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
 	"-;",
 	"DIP;",
 	"-;",
-	"OGK,Analog Video H-Pos,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31;",
-	"OLN,Analog Video V-Pos,0,1,2,3,4,5,6,7;",
 	"OF,Pause when OSD is open,On,Off;",
-	"-;",
 	"R0,Reset;",
 	"J1,Trig1,Trig2,Start 1P,Start 2P,Coin,Pause;",
 	"jn,A,B,Start,Select,R,L;",
@@ -201,7 +200,7 @@ localparam CONF_STR = {
 };
 
 wire  [4:0] HOFFS = status[20:16];
-wire  [2:0] VOFFS = status[23:21];
+wire  [3:0] VOFFS = status[24:21];
 
 // DIP Switches
 
@@ -435,58 +434,50 @@ endmodule
 
 module HVGEN
 (
-	output  [8:0]		HPOS,
-	output  [8:0]		VPOS,
-	input 				PCLK,
-	input	 [11:0]		iRGB,
+	output  [8:0]     HPOS,
+	output  [8:0]	  VPOS,
+	input             PCLK,
+	input   [11:0]	  iRGB,
 
-	output reg [11:0]	oRGB,
-	output reg			HBLK = 1,
-	output reg			VBLK = 1,
-	output reg			HSYN = 1,
-	output reg			VSYN = 1,
+	output reg [11:0] oRGB,
+	output reg        HBLK = 0,
+	output reg    	  VBLK = 0,
+	output reg        HSYN = 1,
+	output reg        VSYN = 1,
 
-	input   [8:0]		HOFFS,
-	input	  [8:0]		VOFFS
+	input signed [4:0] HOFFS,
+	input signed [3:0] VOFFS
 );
-// 384x263 @ 60.6  PCLK: 6.144MHz
+
+// 396x256. V-sync: 60.(60)Hz, H-Sync 15.(51)KHz, Pixel Clock: 6.144MHz
+
+localparam [8:0] width = 396;
 
 reg [8:0] hcnt = 0;
-reg [8:0] vcnt = 0;
+reg [7:0] vcnt = 0;
 
 assign HPOS = hcnt-9'd24;
 assign VPOS = vcnt;
 
-wire [8:0] HS_B = 288+(HOFFS*2);
-wire [8:0] HS_E =  32+(HS_B);
-wire [8:0] HS_N = 447+(HS_E-320);
+wire [8:0] HS_B = 320+HOFFS;
+wire [8:0] HS_E =  32+HS_B;
 
-wire [8:0] VS_B = 226+(VOFFS*4);
-wire [8:0] VS_E =   6+(VS_B);
-wire [8:0] VS_N = 481+(VS_E-232);
+wire [8:0] VS_B = 226+VOFFS;
+wire [8:0] VS_E =   6+VS_B;
+
 
 always @(posedge PCLK) begin
-	case (hcnt)
-	    24: begin HBLK <= 0; hcnt <= hcnt+9'd1; end
-		265: begin HBLK <= 1; hcnt <= hcnt+9'd1; end
-		511: begin hcnt <= 0;
-			case (vcnt)
-				223: begin VBLK <= 1; vcnt <= vcnt+9'd1; end
-				511: begin VBLK <= 0; vcnt <= 0; end
-				default: vcnt <= vcnt+9'd1;
-			endcase
-		end
-		default: hcnt <= hcnt+9'd1;
-	endcase
-
-	if (hcnt==HS_B) begin HSYN <= 0; end
-	if (hcnt==HS_E) begin HSYN <= 1; hcnt <= HS_N; end
-
-	if (vcnt==VS_B) begin VSYN <= 0; end
-	if (vcnt==VS_E) begin VSYN <= 1; vcnt <= VS_N; end
-	
+	if (hcnt < width-1)
+		hcnt <= hcnt+9'd1;
+	else begin
+		vcnt <= vcnt+9'd1;
+		hcnt <= 0;
+	end
+	HBLK <= (hcnt < 24) | (hcnt >= 265);
+	HSYN <= (hcnt >= HS_B) & (hcnt < HS_E);
+	VBLK <= (vcnt >= 223) & (vcnt < 255);
+	VSYN <= (vcnt >= VS_B) & (vcnt < VS_E);
 	oRGB <= (HBLK|VBLK) ? 12'h0 : iRGB;
 end
 
 endmodule
-

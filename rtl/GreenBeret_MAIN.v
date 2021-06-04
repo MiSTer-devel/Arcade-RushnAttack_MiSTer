@@ -143,7 +143,7 @@ reg  [2:0] irqmask;
 reg  [8:0] tick;
 wire [8:0] irqs = (~tick) & (tick+9'd1);
 reg  [8:0] pPV;
-reg		  sync;
+reg        sync;
 
 always @( negedge CPUCL ) begin
 	if (RESET) begin
@@ -165,8 +165,13 @@ always @( negedge CPUCL ) begin
 		end
 		else if (pPV != PV) begin
 			if (PV[3:0]==0) begin
-				if (sync & (PV==9'd0)) begin tick <= 9'd0; sync <= 0; end
-				else tick <= (tick+9'd1);
+				// Mitigate screen tearing by initializing tick value
+				if (sync & (PV==9'd0)) begin
+					tick <= (title == 2) ? 24 : 48;
+					sync <= 0;
+				end else
+					tick <= (tick+9'd1);
+
 				cpu_nmi <= irqs[0] & irqmask[0];
 				cpu_irq <=(irqs[3] & irqmask[1]) | (irqs[4] & irqmask[2]);
 				pPV <= PV;
