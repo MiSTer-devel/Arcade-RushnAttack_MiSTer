@@ -47,10 +47,10 @@ CLKGEN clks( clk48M, pause, clk24M, clk12M, clk6M, clk3M );
 wire   VCLKx8 = clk48M;
 wire   VCLKx4 = clk24M;
 wire   VCLKx2 = clk12M;
-wire	   VCLK = clk6M;
+wire   VCLK = clk6M;
 
 wire   CPUCLK = clk3M;
-wire    CPUCL = ~clk3M; 
+wire   CPUCL = ~clk3M;
 
 
 // Main
@@ -116,19 +116,19 @@ endmodule
 //----------------------------------
 module CLKGEN
 (
-	input		clk48M,
-	input		pause,
+	input   clk48M,
+	input	pause,
 
 	output	clk24M,
 	output	clk12M,
 	output	clk6M,
 	output	clk3M
 );
-	
+
 reg [3:0] clkdiv;
-always @( posedge clk48M ) 
+always @( posedge clk48M )
 begin
-	if(~pause) clkdiv <= clkdiv+4'd1;
+	clkdiv <= clkdiv+4'd1;
 end
 
 assign clk24M = clkdiv[0];
