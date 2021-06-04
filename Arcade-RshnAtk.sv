@@ -182,16 +182,13 @@ assign VIDEO_ARX =  (!ar) ? ( 12'd4) : (ar - 1'd1);
 assign VIDEO_ARY =  (!ar) ? ( 12'd3) : 12'd0;
 
 
-`include "build_id.v" 
+`include "build_id.v"
 localparam CONF_STR = {
 	"A.RshnAtk;;",
 	"H0O67,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
 	"-;",
-	"O89,Lives,2,3,5,7;",
-	"OAB,Extend,20k/ev.60k,30k/ev.70k,40k/ev.80k,50k/ev.90k;",
-	"OCD,Difficulty,Easy,Medium,Hard,Hardest;",
-	"OE,Demo Sound,Off,On;",
+	"DIP;",
 	"-;",
 	"OGK,Analog Video H-Pos,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31;",
 	"OLN,Analog Video V-Pos,0,1,2,3,4,5,6,7;",
@@ -203,18 +200,20 @@ localparam CONF_STR = {
 	"V,v",`BUILD_DATE
 };
 
-wire	[1:0] dsLives   = ~status[9:8];
-wire	[1:0] dsExtend  = ~status[11:10];
-wire	[1:0] dsDiff    = ~status[13:12];
-wire			dsDemoSnd = ~status[14];
-
 wire  [4:0] HOFFS = status[20:16];
 wire  [2:0] VOFFS = status[23:21];
 
-wire	[7:0]	DSW0 = {dsDemoSnd,dsDiff,dsExtend,1'b0,dsLives};
-wire	[7:0]	DSW1 = 8'hFF;
-wire	[7:0]	DSW2 = 8'hFF;
+// DIP Switches
 
+reg [7:0] dsw[4];
+always @(posedge clk_sys)
+	if (ioctl_wr && (ioctl_index==254) && !ioctl_addr[24:2])
+		dsw[ioctl_addr[1:0]] <= ioctl_dout;
+
+reg [3:0] title; // = 0;
+always @(posedge clk_sys)
+	if (ioctl_wr & (ioctl_index==1))
+		title <= ioctl_dout[3:0];
 
 ////////////////////   CLOCKS   ///////////////////
 
@@ -377,22 +376,23 @@ assign AUDIO_S = 0; // unsigned PCM
 ///////////////////////////////////////////////////
 
 wire	rom_download = ioctl_download & !ioctl_index;
-wire	iRST = RESET | status[0] | buttons[1] | ioctl_download;
+wire	iRST = RESET | status[0] | buttons[1];
 
 wire  [5:0]	INP0 = { m_trig12, m_trig11, {m_left1, m_down1, m_right1, m_up1} };
 wire  [5:0]	INP1 = { m_trig22, m_trig21, {m_left2, m_down2, m_right2, m_up2} };
-wire  [2:0]	INP2 = { (m_coin1|m_coin2), m_start2, m_start1 };
+wire  [3:0]	INP2 = { m_coin2, m_coin1, m_start2, m_start1 };
 
-FPGA_GreenBeret GameCore ( 
+FPGA_GreenBeret GameCore (
 	.reset(iRST),.clk48M(clk_48M),
 	.INP0(INP0),.INP1(INP1),.INP2(INP2),
-	.DSW0(DSW0),.DSW1(DSW1),.DSW2(DSW2),
+	.DSW0(~dsw[0]),.DSW1(~dsw[1]),.DSW2(~dsw[2]),
 
 	.PH(HPOS),.PV(VPOS),.PCLK(PCLK),.POUT(POUT),
 	.SND(AOUT),
 
 	.ROMCL(clk_sys),.ROMAD(ioctl_addr),.ROMDT(ioctl_dout),.ROMEN(ioctl_wr & rom_download),
 
+	.title(title),
 	.pause(pause),
 
 	.hs_address(hs_address),

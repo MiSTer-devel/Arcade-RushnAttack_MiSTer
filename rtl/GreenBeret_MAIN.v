@@ -13,7 +13,7 @@ module MAIN
 
 	input   [5:0]	INP0,
 	input   [5:0]	INP1,
-	input   [2:0]	INP2,
+	input   [3:0]	INP2,
 
 	input	  [7:0]	DSW0,
 	input	  [7:0]	DSW1,
@@ -33,7 +33,8 @@ module MAIN
 	input   [7:0]	DLDT,
 	input				DLEN,
 
-	input				pause
+	input   [3:0] title,
+	input         pause
 );
 
 //
@@ -67,7 +68,7 @@ assign CPUWR = ~iCPUWR;
 wire [2:0] ROMBK;
 wire [7:0] ROMDT;
 wire 		  ROMDV;
-MAIN_ROM irom( ~CPUCL,CPUMX,CPUAD,ROMBK,ROMDV,ROMDT, DLCL,DLAD,DLDT,DLEN ); 
+MAIN_ROM irom( ~CPUCL,CPUMX,CPUAD,ROMBK,ROMDV,ROMDT, DLCL,DLAD,DLDT,DLEN );
 
 
 //
@@ -81,7 +82,7 @@ wire CS_DSW0 = (CPUAD[15:8] ==  8'hF2  ) & CPUMX;
 wire CS_DSW1 = (CPUAD[15:8] ==  8'hF4  ) & CPUMX;
 
 `include "HIDDEF.i"
-wire [7:0]	ISYS = ~{`none,`none,`none,`P2ST,`P1ST,`none,`none,`COIN};
+wire [7:0]	ISYS = ~{`none,`none,`none,`P2ST,`P1ST,`none,`COIN2,`COIN1};
 wire [7:0]	IP01 = ~{`none,`none,`P1TB,`P1TA,`P1DW,`P1UP,`P1RG,`P1LF};
 wire [7:0]	IP02 = ~{`none,`none,`P2TB,`P2TA,`P2DW,`P2UP,`P2RG,`P2LF};
 
@@ -92,7 +93,7 @@ DSEL9 dsel(
 	CPUID,
 	VIDDV,VIDRD,
 	ROMDV,ROMDT,
-	CS_ISYS,ISYS, 
+	CS_ISYS,ISYS,
 	CS_IP01,IP01,
 	CS_IP02,IP02,
 	CS_DSW0,DSW0,
@@ -108,7 +109,8 @@ IRQGEN irqg(
 	RESET,PH,PV,
 	CPUCL,CPUAD,CPUWD,CPUMX & CPUWR,
 	cpu_irq,cpu_nmi,
-	ROMBK
+	ROMBK,
+	title
 );
 
 
@@ -126,12 +128,13 @@ module IRQGEN
 	input  [7:0]	CPUWD,
 	input				CPUWE,
 
-	output reg		cpu_irq,
-	output reg		cpu_nmi,
+	output reg	cpu_irq,
+	output reg	cpu_nmi,
 
-	output reg [2:0] ROMBK
+	output reg [2:0] ROMBK,
+
+	input   [3:0] title
 );
-	
 
 wire CS_FSCW = (CPUAD[15:0] == 16'hE044) & CPUWE;
 wire CS_CCTW = (CPUAD[15:0] == 16'hF000) & CPUWE;

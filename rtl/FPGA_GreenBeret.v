@@ -10,7 +10,7 @@ module FPGA_GreenBeret
 
 	input	  [5:0]	INP0,			// Control Panel
 	input	  [5:0]	INP1,
-	input	  [2:0]	INP2,
+	input	  [3:0]	INP2,
 
 	input	  [7:0]	DSW0,			// DipSWs
 	input	  [7:0]	DSW1,
@@ -30,6 +30,7 @@ module FPGA_GreenBeret
 	input   [7:0]	ROMDT,
 	input				ROMEN,
 
+	input   [7:0]  title,
 	input				pause,
 
 	input	 [15:0]	hs_address,
@@ -71,6 +72,7 @@ MAIN cpu
 	
 	ROMCL,ROMAD,ROMDT,ROMEN,
 
+	title,
 	pause
 );
 
