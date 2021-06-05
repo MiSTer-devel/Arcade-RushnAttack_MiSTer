@@ -2,7 +2,7 @@
 	<name>Mr. Goemon</name>
 	<mameversion>0229</mameversion>
 	<setname>mrgoemon</setname>
-	<mratimestamp>20210530000000</mratimestamp>
+	<mratimestamp>20210605000000</mratimestamp>
 	<year>1986</year>
 	<manufacturer>Konami</manufacturer>
 	<category>Platform / Fighter Scrolling</category>
@@ -15,7 +15,7 @@
 		<dip bits="5,6"  name="Difficulty"   ids="Easy,Normal,Difficult,Very Difficult"/>
 		<dip bits="7"    name="Demo Sounds"  ids="Off,On"/>
 		<!-- dip bits="8"    name="Flip Screen" ids="Off,On"/ -->
-		<!-- dip bits="9"    name="Upright Controls" ids="Single,Dual"/ -->
+		<dip bits="9"    name="Upright Controls" ids="Single,Dual"/>
 		<dip bits="16,19"  name="Coin Switch #1" ids="1/1,1/2,1/3,1/4,1/5,1/6,1/7,2/1,2/3,2/5,3/1,3/2,3/4,4/1,4/3,Free play"/>
 		<dip bits="20,23"  name="Coin Switch #2" ids="1/1,1/2,1/3,1/4,1/5,1/6,1/7,2/1,2/3,2/5,3/1,3/2,3/4,4/1,4/3,Invalid"/>
 	</switches>

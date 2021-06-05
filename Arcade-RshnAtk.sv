@@ -273,24 +273,24 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.joystick_1(joystk2)
 );
 
-wire bCabinet  = 1'b0;
+wire dual_controls  = dsw[1][1];
 
-wire m_up2     = joystk2[3];
-wire m_down2   = joystk2[2];
-wire m_left2   = joystk2[1];
-wire m_right2  = joystk2[0];
-wire m_trig21  = joystk2[4];
-wire m_trig22  = joystk2[5];
+wire m_up2     = joystk2[3] | (dual_controls ? 1'b0 : joystk1[3]);
+wire m_down2   = joystk2[2] | (dual_controls ? 1'b0 : joystk1[2]);
+wire m_left2   = joystk2[1] | (dual_controls ? 1'b0 : joystk1[1]);
+wire m_right2  = joystk2[0] | (dual_controls ? 1'b0 : joystk1[0]);
+wire m_trig21  = joystk2[4] | (dual_controls ? 1'b0 : joystk1[4]);
+wire m_trig22  = joystk2[5] | (dual_controls ? 1'b0 : joystk1[5]);
 
-wire m_start1  = joystk1[6] | joystk2[6];
-wire m_start2  = joystk1[7] | joystk2[7];
+wire m_start1  = joystk1[6] | joystk2[7];
+wire m_start2  = joystk1[7] | joystk2[6];
 
-wire m_up1     = joystk1[3] | (bCabinet ? 1'b0 : m_up2);
-wire m_down1   = joystk1[2] | (bCabinet ? 1'b0 : m_down2);
-wire m_left1   = joystk1[1] | (bCabinet ? 1'b0 : m_left2);
-wire m_right1  = joystk1[0] | (bCabinet ? 1'b0 : m_right2);
-wire m_trig11  = joystk1[4] | (bCabinet ? 1'b0 : m_trig21);
-wire m_trig12  = joystk1[5] | (bCabinet ? 1'b0 : m_trig22);
+wire m_up1     = joystk1[3] | (dual_controls ? 1'b0 : joystk2[3]);
+wire m_down1   = joystk1[2] | (dual_controls ? 1'b0 : joystk2[2]);
+wire m_left1   = joystk1[1] | (dual_controls ? 1'b0 : joystk2[1]);
+wire m_right1  = joystk1[0] | (dual_controls ? 1'b0 : joystk2[0]);
+wire m_trig11  = joystk1[4] | (dual_controls ? 1'b0 : joystk2[4]);
+wire m_trig12  = joystk1[5] | (dual_controls ? 1'b0 : joystk2[5]);
 
 wire m_coin1   = joystk1[8];
 wire m_coin2   = joystk2[8];
