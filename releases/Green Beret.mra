@@ -64,10 +64,16 @@
 		<part crc="c15e7c80" name="577h09.2f"/>
 	</rom>
 	<rom index="2"></rom>
-	<rom index="3"></rom>
+	<rom index="3" md5="none">
+		<part>
+		12 FF FF FF 00 FF 00 02 00 02 00 01 00 FF 00 00
+		00 00 D9 00 00 3C 03 13
+		00 00 DB 06 00 03 03 00
+		</part>
+	</rom>
 	<rom index="4"></rom>
 
-	<nvram index="4" size="63"></nvram>
+	<nvram index="4" size="63"/>
 
 	<remark></remark>
 </misterromdescription>
