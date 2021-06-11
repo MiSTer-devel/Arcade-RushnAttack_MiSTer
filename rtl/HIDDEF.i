@@ -5,11 +5,12 @@
 /*
   wire [5:0] INP0 = { m_trig12, m_trig11, {m_left1, m_down1, m_right1, m_up1} };
   wire [5:0] INP1 = { m_trig22, m_trig22, {m_left2, m_down2, m_right2, m_up2} };
-  wire [2:0] INP2 = { (m_coin1|m_coin2), m_start2, m_start1 };
+  wire [2:0] INP2 = { m_coin2, m_coin1, m_start2, m_start1 };
 */
 `define	none	1'b0
 
-`define	COIN	INP2[2]
+`define	COIN2	INP2[3]
+`define	COIN1	INP2[2]
 `define	P1ST	INP2[0]
 `define	P2ST	INP2[1]
 

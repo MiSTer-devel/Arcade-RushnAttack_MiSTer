@@ -10,7 +10,7 @@ module FPGA_GreenBeret
 
 	input	  [5:0]	INP0,			// Control Panel
 	input	  [5:0]	INP1,
-	input	  [2:0]	INP2,
+	input	  [3:0]	INP2,
 
 	input	  [7:0]	DSW0,			// DipSWs
 	input	  [7:0]	DSW1,
@@ -30,6 +30,7 @@ module FPGA_GreenBeret
 	input   [7:0]	ROMDT,
 	input				ROMEN,
 
+	input   [7:0]  title,
 	input				pause,
 
 	input	 [15:0]	hs_address,
@@ -46,10 +47,10 @@ CLKGEN clks( clk48M, pause, clk24M, clk12M, clk6M, clk3M );
 wire   VCLKx8 = clk48M;
 wire   VCLKx4 = clk24M;
 wire   VCLKx2 = clk12M;
-wire	   VCLK = clk6M;
+wire   VCLK = clk6M;
 
 wire   CPUCLK = clk3M;
-wire    CPUCL = ~clk3M; 
+wire   CPUCL = ~clk3M;
 
 
 // Main
@@ -71,6 +72,7 @@ MAIN cpu
 	
 	ROMCL,ROMAD,ROMDT,ROMEN,
 
+	title,
 	pause
 );
 
@@ -114,19 +116,19 @@ endmodule
 //----------------------------------
 module CLKGEN
 (
-	input		clk48M,
-	input		pause,
+	input   clk48M,
+	input	pause,
 
 	output	clk24M,
 	output	clk12M,
 	output	clk6M,
 	output	clk3M
 );
-	
+
 reg [3:0] clkdiv;
-always @( posedge clk48M ) 
+always @( posedge clk48M )
 begin
-	if(~pause) clkdiv <= clkdiv+4'd1;
+	clkdiv <= clkdiv+4'd1;
 end
 
 assign clk24M = clkdiv[0];
