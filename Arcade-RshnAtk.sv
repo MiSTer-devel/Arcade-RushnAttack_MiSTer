@@ -473,7 +473,7 @@ always @(posedge PCLK) begin
 		vcnt <= vcnt+9'd1;
 		hcnt <= 0;
 	end
-	HBLK <= (hcnt < 24) | (hcnt >= 265);
+	HBLK <= (hcnt < 24) | (hcnt >= 264);
 	HSYN <= (hcnt >= HS_B) & (hcnt < HS_E);
 	VBLK <= (vcnt >= 223) & (vcnt < 255);
 	VSYN <= (vcnt >= VS_B) & (vcnt < VS_E);
