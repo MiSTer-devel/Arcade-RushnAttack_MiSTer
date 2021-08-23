@@ -178,8 +178,8 @@ assign BUTTONS = 0;
 
 wire [1:0] ar = status[7:6];
 
-assign VIDEO_ARX =  (!ar) ? ( 12'd4) : (ar - 1'd1);
-assign VIDEO_ARY =  (!ar) ? ( 12'd3) : 12'd0;
+assign VIDEO_ARX =  (!ar) ? ( 12'd10) : (ar - 1'd1);
+assign VIDEO_ARY =  (!ar) ? ( 12'd7) : 12'd0;
 
 
 `include "build_id.v"
@@ -460,10 +460,10 @@ assign HPOS = hcnt-9'd24;
 assign VPOS = vcnt;
 
 wire [8:0] HS_B = 320+HOFFS;
-wire [8:0] HS_E =  32+HS_B;
+wire [8:0] HS_E =  31+HS_B;
 
 wire [8:0] VS_B = 226+VOFFS;
-wire [8:0] VS_E =   6+VS_B;
+wire [8:0] VS_E =   5+VS_B;
 
 
 always @(posedge PCLK) begin
@@ -473,9 +473,9 @@ always @(posedge PCLK) begin
 		vcnt <= vcnt+9'd1;
 		hcnt <= 0;
 	end
-	HBLK <= (hcnt < 24) | (hcnt >= 265);
+	HBLK <= (hcnt < 25) | (hcnt >= 265);
 	HSYN <= (hcnt >= HS_B) & (hcnt < HS_E);
-	VBLK <= (vcnt >= 223) & (vcnt < 255);
+	VBLK <= (vcnt >= 224) & (vcnt < 256);
 	VSYN <= (vcnt >= VS_B) & (vcnt < VS_E);
 	oRGB <= (HBLK|VBLK) ? 12'h0 : iRGB;
 end
