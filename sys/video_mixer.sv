@@ -175,7 +175,7 @@ always @(posedge CLK_VIDEO) begin
 	reg old_hde;
 	reg old_ce;
 	reg ce_osc, fs_osc;
-
+	
 	old_ce <= ce_pix;
 	ce_osc <= ce_osc | (old_ce ^ ce_pix);
 
