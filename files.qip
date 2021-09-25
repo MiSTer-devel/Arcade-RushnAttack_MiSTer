@@ -13,4 +13,5 @@ set_global_assignment -name VERILOG_FILE rtl/GreenBeret_MAIN.v
 set_global_assignment -name VERILOG_FILE rtl/FPGA_GreenBeret.v
 set_global_assignment -name VERILOG_FILE rtl/DPRAMs.v
 set_global_assignment -name VERILOG_FILE rtl/hiscore.v
+set_global_assignment -name VERILOG_FILE rtl/pause.v
 set_global_assignment -name SYSTEMVERILOG_FILE "Arcade-RshnAtk.sv"
