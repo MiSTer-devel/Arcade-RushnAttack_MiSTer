@@ -6,6 +6,7 @@
 	<year>1986</year>
 	<manufacturer>Konami</manufacturer>
 	<category>Platform / Fighter Scrolling</category>
+	<rotation>horizontal</rotation>
 	<rbf>rshnatk</rbf>
 	<buttons names="Weapon,Shoot,Start 1P,Start 2P,Coin,Pause" default="A,B,Start,Select,R,L"/>
 	<switches default="a1,00,00">
